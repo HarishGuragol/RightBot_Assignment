@@ -23,12 +23,11 @@ def producer(buffer, video_capture, total_frames, producer_frame_count):
         ret, frame = video_capture.read()
         if ret:
             buffer.append(frame)
-            print("Produced frame")
             frame_count += 1
-            producer_frame_count.append(frame_count)  # Update producer frame count
+            producer_frame_count.append(frame_count)  
         else:
             print("Failed to capture frame")
-        time.sleep(0.1)  # Adjust this delay as per your requirement
+        time.sleep(0.1)
 
 def consumer(buffer, save_dir, consumer_frame_count):
     frame_count = 0
@@ -37,30 +36,26 @@ def consumer(buffer, save_dir, consumer_frame_count):
         if frames:
             for frame in frames:
                 cv2.imshow("Live Video", frame)
-                cv2.waitKey(1)  # Adjust the delay between frames as needed
+                cv2.waitKey(1)  
                 frame_count += 1
-                consumer_frame_count.append(frame_count)  # Update consumer frame count
+                consumer_frame_count.append(frame_count)  
                 cv2.imwrite(os.path.join(save_dir, f"frame_{frame_count}.jpg"), frame)
                 if frame_count >= 500:
-                    print("consumer_data", len(consumer_frame_count))
-                    print("Reached 500 frames. Terminating...")
-                    cv2.destroyAllWindows()  # Close OpenCV windows
-                    sys.exit()  # Exit the program
-            print("Consumed frames")
+                    cv2.destroyAllWindows() 
+                    sys.exit()  
         else:
-            print("Buffer is empty")
-            time.sleep(0.1)  # Adjust this delay if the buffer is constantly empty
+            time.sleep(0.1)
 
 def main():
-    buffer_capacity = 10  # Adjust the buffer capacity as needed
+    buffer_capacity = 10  
     ring_buffer = RingBuffer(buffer_capacity)
-    video_capture = cv2.VideoCapture(0)  # Adjust the camera index as needed
+    video_capture = cv2.VideoCapture(0)  
 
     save_dir = "captured_frames_data"
     os.makedirs(save_dir, exist_ok=True)
 
-    producer_frame_count = []  # Track number of frames produced
-    consumer_frame_count = []  # Track number of frames consumed
+    producer_frame_count = [] 
+    consumer_frame_count = []  
 
     producer_thread = threading.Thread(target=producer, args=(ring_buffer, video_capture, 500, producer_frame_count))
     consumer_thread = threading.Thread(target=consumer, args=(ring_buffer, save_dir, consumer_frame_count))
